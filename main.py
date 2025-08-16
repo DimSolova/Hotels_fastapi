@@ -55,31 +55,32 @@ def delete_hotel(hotel_id: int):
     return {'status': 'OK'}
 
 @app.put("/hotels/{hotel_id}")
-def change_hotel(
+def edit_hotel(
         hotel_id : int,
-        title : str = Body(embed=True),
-        name : str = Body(embed=True)
+        title : str = Body(),
+        name : str = Body()
 ):
     global hotels
-    up_hotels = update_hotel(hotels, hotel_id, title, name)
-    if up_hotels:
-        hotels = up_hotels
-        return {'status': 'OK'}
-    return {'status': 'Id not found'}
+    hotel = [hotel for hotel in hotels if hotel['id'] == hotel_id][0]
+    hotel['title'] = title
+    hotel['name'] = name
+    return {'status': 'OK'}
 
-
-@app.patch("/hotels/{hotel_id}")
-def change_hotel_element(
+@app.patch("/hotels/{hotel_id}",
+           summary='Частичное обновление данных об отеле',
+           description="Тут мы частично обновляем данные об отеле")
+def partially_edit_hotel(
         hotel_id : int,
-        title : str | None = Body(None, embed=True),
-        name : str | None = Body(None, embed=True)
+        title : str | None = Body(None),
+        name : str | None= Body(None)
 ):
     global hotels
-    up_hotels = update_hotel(hotels, hotel_id, title, name)
-    if up_hotels:
-        hotels = up_hotels
-        return {'status': 'OK'}
-    return {'status' : 'Id not found'}
+    hotel = [hotel for hotel in hotels if hotel['id'] == hotel_id][0]
+    if title:
+        hotel['title'] = title
+    if name:
+        hotel['name'] = name
+    return {'status': 'OK'}
 
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
