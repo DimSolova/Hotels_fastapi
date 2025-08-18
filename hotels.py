@@ -7,42 +7,23 @@ router = APIRouter(prefix='/hotels', tags=['Отели'])
 
 
 hotels = [
-    {"id": 1, "title": "Sochi", "name": "sochi"},
-    {"id": 2, "title": "Дубай", "name": "dubai"},
-    {"id": 3, "title": "Мальдивы", "name": "maldivi"},
-    {"id": 4, "title": "Геленджик", "name": "gelendzhik"},
-    {"id": 5, "title": "Москва", "name": "moscow"},
-    {"id": 6, "title": "Казань", "name": "kazan"},
-    {"id": 7, "title": "Санкт-Петербург", "name": "spb"}
+    {'id': 1, 'title': 'Sochi', 'name': 'sochi'},
+    {'id': 2, 'title': 'Dubai', 'name': 'dubai'},
 ]
 
 
 @router.get('')
 def get_hotels(
         id: int | None = Query(None, description='Id'),
-        title: str | None = Query(None, description='Hotel name'),
-        page: int = Query(1,description='cо страницы'),
-        per_page: int = Query(len(hotels) // 3 + 1, description='По страницу')
+        title: str | None = Query(None, description='Hotel name')
 ):
     hotels_ = []
-
-    # Если мы не ввели id и title происходит пагинация
-    if id is None and title is None:
-        start = (page - 1) * 3
-        finish = (per_page) * 3
-        if finish >= len(hotels):
-            finish = len(hotels)
-        for i in range(start, finish):
-            hotels_.append(hotels[i])
-
-    # иначе выполняем по ид или тайтлу
-    else:
-        for hotel in hotels:
-            if id and hotel['id'] != id:
-                continue
-            if title and hotel['title'] != title:
-                continue
-            hotels_.append(hotel)
+    for hotel in hotels:
+        if id and hotel['id'] != id:
+            continue
+        if title and hotel['title'] != title:
+            continue
+        hotels_.append(hotel)
     return hotels_
 
 
