@@ -33,12 +33,7 @@ def get_hotels(
 def create_hotel(
         hotel_data: Hotel
 ):
-    global hotels
-    hotels.append({
-        'id': hotels[-1]['id'] + 1,
-        'title': hotel_data.title,
-        'name': hotel_data.name
-    })
+    async with se
     return {'status': 'Ok'}
 
 
