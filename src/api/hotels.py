@@ -5,6 +5,7 @@ from sqlalchemy import insert, select,func
 
 from src.api.dependencies import PaginationDep
 from src.models.hotels import HotelsOrm
+from src.repositories.hotels import HotelsRepository
 from src.schemas.hotels import Hotel, HotelPATCH
 from src.database import async_session_maker
 
@@ -16,23 +17,14 @@ async def get_hotels(
         location: str | None = Query(None, description='Location'),
         title: str | None = Query(None, description='Hotel name')
 ):
-        per_page = pagination.per_page or 5
-        async with async_session_maker() as session:
-            query = select(HotelsOrm)
-            if location:
-                query = query.filter(func.lower(HotelsOrm.location).like(f'%{location.lower()}%'))
-
-            if title:
-                query = query.filter(func.lower(HotelsOrm.title).like(f'%{title.lower()}%'))
-            query = (query
-                     .limit(per_page)
-                     .offset(per_page * (pagination.page - 1))
-            )
-            res = await session.execute(query)
-            hotels = res.scalars().all()
-            return hotels
-        # if pagination.page and pagination.per_page:
-        #     return hotels_[pagination.per_page * (pagination.page - 1):][:pagination.per_page]
+    per_page = pagination.per_page or 5
+    async with async_session_maker() as session:
+        return await HotelsRepository(session).get_all(
+            location=location,
+            title=title,
+            limit=per_page,
+            offset=per_page * (pagination.page - 1)
+        )
 
 
 @router.post('')
@@ -49,6 +41,7 @@ async def create_hotel(
         }}})
 ):
     async with async_session_maker() as session:
+        print('hotel data : ',hotel_data)
         add_hotel_statement = insert(HotelsOrm).values(**hotel_data.model_dump())
         print(add_hotel_statement.compile(compile_kwargs={'literal_binds':True}))
         await session.execute(add_hotel_statement)
