@@ -1,5 +1,5 @@
+from dns.e164 import query
 from fastapi import Query,APIRouter, Body
-
 
 from sqlalchemy import insert, select,func
 
@@ -41,12 +41,12 @@ async def create_hotel(
         }}})
 ):
     async with async_session_maker() as session:
-        # add_hotel_statement = insert(HotelsOrm).values(**hotel_data.model_dump())
-        # await session.execute(add_hotel_statement)
-        data = await HotelsRepository(session).add(hotel_data)
+        print('hotel data : ',hotel_data)
+        add_hotel_statement = insert(HotelsOrm).values(**hotel_data.model_dump())
+        print(add_hotel_statement.compile(compile_kwargs={'literal_binds':True}))
+        await session.execute(add_hotel_statement)
         await session.commit()
-        print(data)
-    return {'status': 'Ok', "data": data}
+    return {'status': 'Ok'}
 
 
 @router.delete('/{hotel_id}')
