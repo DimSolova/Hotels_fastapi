@@ -41,26 +41,26 @@ async def create_hotel(
         }}})
 ):
     async with async_session_maker() as session:
-        # add_hotel_statement = insert(HotelsOrm).values(**hotel_data.model_dump())
-        # await session.execute(add_hotel_statement)
         data = await HotelsRepository(session).add(hotel_data)
         await session.commit()
-        print(data)
     return {'status': 'Ok', "data": data}
 
 
 @router.delete('/{hotel_id}')
-def delete_hotel(hotel_id: int):
-    global hotels
-    hotels = [hotel for hotel in hotels if hotel['id'] != hotel_id]
+async def delete_hotel(title: str, location:str):
+    async with async_session_maker() as session:
+        await HotelsRepository(session).delete(title=title,
+                                               location=location)
     return {'status': 'OK'}
 
 @router.put("/{hotel_id}")
-def edit_hotel(hotel_id:int, hotel_data: Hotel):
-    global hotels
-    hotel = [hotel for hotel in hotels if hotel['id'] == hotel_id][0]
-    hotel['title'] = hotel_data.title
-    hotel['name'] = hotel_data.name
+async def edit_hotel(title:str,
+                     location:str,
+                     hotel_data: Hotel):
+    async with async_session_maker() as session:
+        res = await HotelsRepository(session).edit(hotel_data,
+                                                   title=title,
+                                                   location=location)
     return {'status': 'OK'}
 
 @router.patch("/{hotel_id}",
