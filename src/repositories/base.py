@@ -1,4 +1,3 @@
-from dns.e164 import query
 from sqlalchemy import select, insert, update, delete
 from pydantic import BaseModel
 
