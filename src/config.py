@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     def DB_URL(self):
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+
 
     #.env стоит и так по умолчанию , в extra задается чтобы он игнорировал ,
     # если вдруг в .env есть переменная , в классе нет
