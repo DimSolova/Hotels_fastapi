@@ -15,6 +15,8 @@ async def register_user(
         data: UserRequestAdd
 ):
     hashed_password = AuthService().hash_password(data.password)
+
+    #В переменной алембик схема
     new_user_data = UserAdd(email=data.email,
                             hashed_password=hashed_password,
                             nickname=data.nickname,
