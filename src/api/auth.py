@@ -46,4 +46,8 @@ async def only_auth(
         request: Request,
 
 ):
-    ...
+    access_token = request.cookies
+    if access_token:
+        return {'access_token' : access_token}
+    else:
+        return {'токен не найден'}
