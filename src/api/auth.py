@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException, Response, Request
+from fastapi import APIRouter, HTTPException, Response
 
+from src.api.dependencies import UserIdDep
 from passlib.context import CryptContext
 from src.database import async_session_maker
 from src.repositories.users import UsersRepository
@@ -37,17 +38,21 @@ async def login_user(
             raise HTTPException(status_code=401, detail='Пользователь с таким email не зарегистрирован')
         if not AuthService().verify_password(data.password, user.hashed_password):
             raise HTTPException(status_code=401, detail='Пароль не верный')
-        access_token = AuthService().create_access_token({'user_id': user.id})
+        access_token = AuthService().create_access_token({'user_id': user.id,
+                                                          'age': user.age})
         response.set_cookie('access_token', access_token)
         return {'access_token': access_token}
 
-@router.get('/only_auth')
-async def only_auth(
-        request: Request,
+@router.delete('/logout')
+async def logout(response: Response):
+    response.delete_cookie(key='access_token')
+    return {'status': 'токен удален'}
 
+@router.get('/me',
+            description='проверяет есть ли в куках jwt токен и возвращает пользователя')
+async def get_me(
+        user_id: UserIdDep,
 ):
-    access_token = request.cookies
-    if access_token:
-        return {'access_token' : access_token}
-    else:
-        return {'токен не найден'}
+    async with async_session_maker() as session:
+        user = await UsersRepository(session).get_one_or_none(id=user_id)
+        return user

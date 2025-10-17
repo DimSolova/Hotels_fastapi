@@ -12,10 +12,8 @@ class UsersRepository(BaseRepository):
     schema = User
 
     async def get_user_with_hashed_password(self, email: EmailStr):
-        print('get_user_with_hashed_password')
         query = select(self.model).filter_by(email=email)
         result = await self.session.execute(query)
-        print('res = ',result)
         model = result.scalars().one_or_none()
         if not model:
             return None
