@@ -10,5 +10,7 @@ class Hotel(HotelAdd):
     # model_config = ConfigDict(from_attributes=True)
 
 class HotelPATCH(BaseModel):
-    title: str | None = Field(None)
-    location: str | None = Field(None)
+    # параметры могут быть как str так и None . = Field(None)
+    # позволяет подробнее описать валидацию
+    title: str | None = Field(None, description='Поле названия отеля')
+    location: str | None = Field(None, description='Расположение отеля')

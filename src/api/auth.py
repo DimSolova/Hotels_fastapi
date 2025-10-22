@@ -23,6 +23,13 @@ async def register_user(
                             nickname=data.nickname,
                             age=data.age)
     async with async_session_maker() as session:
+        #TODO  Код повторяется ниже в Логине
+        user = await UsersRepository(session).get_user_with_hashed_password(email=data.email)
+
+        # проверка на существующий email
+        if user:
+            raise HTTPException(status_code=401, detail='Пользователь с таким email зарегистрирован')
+
         await UsersRepository(session).add(new_user_data)
         await session.commit()
     return {'status': 'OK'}
@@ -34,10 +41,16 @@ async def login_user(
 ):
     async with async_session_maker() as session:
         user = await UsersRepository(session).get_user_with_hashed_password(email=data.email)
+
+        #проверка на существующий email
         if not user:
             raise HTTPException(status_code=401, detail='Пользователь с таким email не зарегистрирован')
+
+        #проверка на верный пароль
         if not AuthService().verify_password(data.password, user.hashed_password):
             raise HTTPException(status_code=401, detail='Пароль не верный')
+
+        # Создаем токен
         access_token = AuthService().create_access_token({'user_id': user.id,
                                                           'age': user.age})
         response.set_cookie('access_token', access_token)
