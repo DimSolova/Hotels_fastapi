@@ -1,59 +1,74 @@
 from fastapi import APIRouter, Body
 
 from src.database import async_session_maker
-from src.schemas.rooms import RoomAdd, RoomPATCH
+from src.schemas.rooms import RoomAdd, RoomPatch, RoomAddRequest, RoomPatchRequest
 from src.repositories.rooms import RoomsRepository
 
-router = APIRouter(prefix='/rooms',tags=['Номера'] )
+router = APIRouter(prefix='/hotels',tags=['Номера'] )
 
-@router.get('')
-async def get_rooms():
+@router.get('/{hotels_id}/rooms')
+async def get_rooms(hotel_id:int):
     async with async_session_maker() as session:
-        data = await RoomsRepository(session).get_all()
-    return {'status' : 'ok','data': data}
+        return await RoomsRepository(session).get_filtered(hotel_id=hotel_id)
 
-@router.post('',
+@router.get('/{hotels_id}/rooms/{room_id}')
+async def get_room(hotel_id: int, room_id: int):
+    async with async_session_maker() as session:
+        return await RoomsRepository(session).get_one_or_none(id=room_id, hotel_id=hotel_id)
+
+@router.post('/{hotels_id}/rooms',
              summary='Добавление номера',
              description='В request body передаем словарь со всеми параметрами ID '
                          'присвоиться автоматически')
+#По REST мы обязаны передавать hotel_id в Query и что бы не передавать его
+# 2 раза Query и Body мы создали специальную pydantic схему , где он принимает уже без hotel_id в теле Body(),
+# это экономит время , так же удобно фронтэндеру
 async def create_room(
-        room_data: RoomAdd = Body(...)):
+        hotel_id: int,
+        room_data: RoomAddRequest = Body(...)):
+    _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
     async with async_session_maker() as session:
-        data = await RoomsRepository(session).add(room_data)
+        room = await RoomsRepository(session).add(_room_data)
         await session.commit()
-    return {'status': 'ok', 'data': data}
 
-@router.delete('/{room_id}',
-               summary='Удаляем номер',
-               description='Нужно указать id комнаты которую хотим удалить')
-async def delete(room_id: int):
-    async with async_session_maker() as session:
-        await RoomsRepository(session).delete(id=room_id)
-        await session.commit()
-    return {'status': 'OK'}
+    return {'status': 'ok', 'data': room}
 
-@router.put('/{room_id}',
+@router.put('/{hotels}/rooms/{room_id}',
             summary='Полное изменение отеля',
             description='передаем id отеля и json новых данных')
-async def edit_room(room_id: int,
-                    room_data:RoomAdd):
+async def edit_room(hotel_id: int,
+                    room_id: int,
+                    room_data:RoomAddRequest):
+    _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
     async with async_session_maker() as session:
-        await RoomsRepository(session).edit(room_data,
+        await RoomsRepository(session).edit(_room_data,
                                             id=room_id)
         await session.commit()
     return {'status': 'OK'}
 
-@router.patch('/{room_id}',
+@router.patch('/{hotels}/rooms/{room_id}',
               summary='частичное изменение отеля',
               description='передаем id и изменяем нужные нам '
                           'элементы в боди ')
-async def partially_edit_room(room_id: int,
-                              room_data: RoomPATCH = Body(...)):
+async def partially_edit_room(hotel_id:int,
+                              room_id: int,
+                              room_data: RoomPatchRequest = Body(...)):
+    _room_data = RoomPatch(hotel_id=hotel_id, **room_data.model_dump(exclude_unset=True))
     async with async_session_maker() as session:
         #exclude_unset=True, метод в pydantic позволяет убрать
         #из словаря все значения в которых None
-        await RoomsRepository(session).edit(room_data,
+        await RoomsRepository(session).edit(_room_data,
                                             exclude_unset=True,
-                                            id=room_id)
+                                            id=room_id,
+                                            hotel_id=hotel_id)
         await session.commit()
     return {'status': "ok"}
+
+@router.delete('/{hotels}/rooms/{room_id}',
+               summary='Удаляем номер',
+               description='Нужно указать id комнаты которую хотим удалить')
+async def delete(hotel_id: int, room_id: int):
+    async with async_session_maker() as session:
+        await RoomsRepository(session).delete(id=room_id, hotel_id=hotel_id)
+        await session.commit()
+    return {'status': 'OK'}
