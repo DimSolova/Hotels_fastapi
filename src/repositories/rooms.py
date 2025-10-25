@@ -1,4 +1,3 @@
-from dns.e164 import query
 from fastapi import HTTPException
 from pydantic import BaseModel
 from sqlalchemy import insert, select

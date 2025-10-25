@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends, Query,Request,HTTPException
+from fastapi import Depends, Query, Request, HTTPException, Body
 from pydantic import BaseModel
 
 from src.database import async_session_maker
@@ -41,3 +41,16 @@ async def get_db():
 
 DBDep = Annotated[DBManager, Depends(get_db)]
 
+
+
+#Practice
+class PracticeParams(BaseModel):
+    number: Annotated[int,Query(...,ge=1,le=100, description='description')]
+
+PracticeDep = Annotated[PracticeParams, Depends()]
+
+class UserCreate(BaseModel):
+    name: str
+    age: int
+
+PracticeUser = Annotated[UserCreate, Query()]

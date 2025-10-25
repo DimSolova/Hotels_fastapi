@@ -9,11 +9,20 @@ sys.path.append(str(Path(__file__).parent.parent))
 from src.api.hotels import router as router_hotels
 from src.api.auth import router as router_auth
 from src.api.rooms import router as router_rooms
+from src.api.bookings import router as router_bookings
+
+#практический импорт
+from src.api.practice import router as practice_router
+
 
 app = FastAPI()
 app.include_router(router_auth)
 app.include_router(router_hotels)
 app.include_router(router_rooms)
+app.include_router(router_bookings)
+
+#ручка для практики материала
+# app.include_router(practice_router)
 
 if __name__ == '__main__':
     uvicorn.run('main:app', reload=True)
