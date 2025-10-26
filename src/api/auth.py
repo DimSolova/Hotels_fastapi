@@ -1,3 +1,4 @@
+#src/api/auth.py
 from fastapi import APIRouter, HTTPException, Response
 
 from src.api.dependencies import DBDep, UserIdDep
