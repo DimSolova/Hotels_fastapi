@@ -11,7 +11,8 @@ async def add_bookings(
         bookings_data: BookingsAddRequest,
         db: DBDep
 ):
-    price = await db.rooms.get_price(bookings_data.model_dump()['room_id'])
+    room = await db.rooms.get_one_or_none(id=bookings_data.room_id)
+    price: int = room.price
     _bookings_data = BookingsAdd(user_id=user_id, price=price, **bookings_data.model_dump())
     data = await db.bookings.add(_bookings_data)
 
