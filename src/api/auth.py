@@ -1,9 +1,9 @@
 #src/api/auth.py
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, HTTPException, Response, Body
 
 from src.api.dependencies import DBDep, UserIdDep
 from passlib.context import CryptContext
-from src.schemas.users import UserRequestAdd, UserAdd
+from src.schemas.users import UserRequestAdd, UserAdd, UserLogin
 from src.services.auth import AuthService
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -34,9 +34,21 @@ async def register_user(
 
 @router.post('/login')
 async def login_user(
-        data: UserRequestAdd,
         response: Response,
-        db: DBDep
+        db: DBDep,
+        data: UserLogin = Body(openapi_examples={
+            '1': {'summary' : 'Dima_Solova', 'value' : {
+                'email': 'dimsolova@gmail.com',
+                'password': 'string'
+            }},
+            '2': {'summary': 'Sveta', 'value' : {
+                'email': 'sveta@gmail.com',
+                'password': 'string'
+            }},
+            '3': {'summary' : 'Ira', 'value': {
+                'email': 'ira@gmail.com',
+                'password': 'string'
+            }}}),
 ):
     user = await db.users.get_user_with_hashed_password(email=data.email)
 

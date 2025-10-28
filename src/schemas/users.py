@@ -1,9 +1,10 @@
 from pydantic import BaseModel, ConfigDict, EmailStr
 
-
-class UserRequestAdd(BaseModel):
+class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+class UserRequestAdd(UserLogin):
     nickname: str
     age: int
 
