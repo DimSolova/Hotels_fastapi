@@ -16,6 +16,18 @@ class RoomsRepository(BaseRepository):
     model = RoomsOrm
     schema = Room
 
+    async def get_one_or_none_with_rels(self, **filter_by):
+        query = (select(self.model)
+                    .options(joinedload(self.model.facilities))
+                 .filter_by(**filter_by))
+        result = await self.session.execute(query)
+
+        model = result.scalars().unique().one_or_none()
+        if model is None:
+            return None
+        return RoomWithRels.model_validate(model, from_attributes=True)
+
+
     async def get_filtered_by_time(
             self,
             hotel_id,
