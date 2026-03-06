@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     DB_PASS : str
     DB_NAME: str
 
+    REDIS_HOST:str
+    REDIS_PORT:int
+
 
     #декоратор делает функцию как свойство
     #этот адрес так же называют DSN
