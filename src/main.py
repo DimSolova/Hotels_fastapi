@@ -25,7 +25,7 @@ from src.api.practice import router as practice_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await redis_manager.connect()
-    # FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
+    FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
 
     yield
     await redis_manager.close()
