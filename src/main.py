@@ -1,8 +1,15 @@
 #src/main.py
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 import uvicorn
 import sys
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+
 from pathlib import Path
+
+from src.init import redis_manager
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -15,8 +22,17 @@ from src.api.facilities import router as router_facilities
 #практический импорт
 from src.api.practice import router as practice_router
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await redis_manager.connect()
+    # FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
 
-app = FastAPI()
+    yield
+    await redis_manager.close()
+
+app = FastAPI(lifespan=lifespan)
+
+
 app.include_router(router_auth)
 app.include_router(router_hotels)
 app.include_router(router_rooms)
