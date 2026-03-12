@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from src.api.dependencies import DBDep
 from src.init import redis_manager
 from src.schemas.facilities import FacilitiesAdd
+from src.tasks.tasks import test_task
 
 router = APIRouter(prefix='/facilities', tags=['Удобства'])
 
@@ -23,5 +24,7 @@ async def add_facilities(
                          ):
     facility = await db.facilities.add(data)
     await db.commit()
+
+    test_task.delay()
 
     return {"status": "ok","falities": facility}
