@@ -16,9 +16,9 @@ def test_task():
     sleep(5)
     print("Я молодец")
 
-@celery_instance.task
+# @celery_instance.task
 def resize_image(image_path: str):
-    sizes = [i for i in range(100,1000, 1)]
+    sizes = [1000, 500, 200]
     output_folder = 'src/static/images'
 
     # Открываем изображение
