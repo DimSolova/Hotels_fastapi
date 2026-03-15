@@ -18,9 +18,9 @@ class BookingsOrm(Base):
     date_from: Mapped[date] = mapped_column(Date)
     date_to: Mapped[date] = mapped_column(Date)
     price: Mapped[int]
-    total_price: Mapped[int] = mapped_column(
-        Computed("(price * EXTRACT(DAY FROM (date_to - date_from)))"))
-    created_at: Mapped[date] = mapped_column(Date, default=date.today())
+    # total_price: Mapped[int] = mapped_column(
+    #     Computed("(price * EXTRACT(DAY FROM (date_to - date_from)))"))
+    # created_at: Mapped[date] = mapped_column(Date, default=date.today())
 
     #декоратор как и обычный property, Позволяет использовать функцию как переменную
     @hybrid_property
