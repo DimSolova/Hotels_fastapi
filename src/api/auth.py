@@ -2,11 +2,9 @@
 from fastapi import APIRouter, HTTPException, Response, Body
 
 from src.api.dependencies import DBDep, UserIdDep
-from passlib.context import CryptContext
 from src.schemas.users import UserRequestAdd, UserAdd, UserLogin
 from src.services.auth import AuthService
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 router = APIRouter(prefix='/auth', tags=['Авторизация и аутентификация'])
 
@@ -20,8 +18,7 @@ async def register_user(
     #В переменной алембик схема
     new_user_data = UserAdd(email=data.email,
                             hashed_password=hashed_password,
-                            nickname=data.nickname,
-                            age=data.age)
+                            )
     user = await db.users.get_user_with_hashed_password(email=data.email)
 
         # проверка на существующий email
