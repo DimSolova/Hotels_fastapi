@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from src.config import setting
@@ -17,6 +19,26 @@ async def setup_database(check_test_mode) -> None:
     async with engine_null_pool.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        # Отели
+        with open("test/mock_hotels.json", encoding="utf-8") as f:
+            hotels = json.load(f)
+        for hotel in hotels:
+            await ac.post("/hotels", json=hotel)
+
+        # Комнаты
+        with open("test/mock_rooms.json", encoding="utf-8") as f:
+            rooms = json.load(f)
+
+        for room in rooms:
+            hotel_id = room.pop("hotel_id")  # убираем, если есть
+            url = f"/hotels/{hotel_id}/rooms"
+            await ac.post(
+                url,  # ← вот здесь главное
+                json=room
+            )
+
 
 @pytest.fixture(scope="session",autouse=True)
 async def register_user(setup_database):

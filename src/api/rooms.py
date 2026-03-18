@@ -21,7 +21,7 @@ async def get_rooms(
 async def get_room(db:DBDep, hotel_id: int, room_id: int):
     return await db.rooms.get_one_or_none_with_rels(id=room_id, hotel_id=hotel_id)
 
-@router.post('/{hotels_id}/rooms',
+@router.post('/{hotel_id}/rooms',
              summary='Добавление номера',
              description='В request body передаем словарь со всеми параметрами ID '
                          'присвоиться автоматически')
@@ -29,14 +29,14 @@ async def get_room(db:DBDep, hotel_id: int, room_id: int):
 # 2 раза Query и Body мы создали специальную pydantic схему , где он принимает уже без hotel_id в теле Body(),
 # это экономит время , так же удобно фронтэндеру
 async def create_room(
-        db:DBDep,
         hotel_id: int,
+        db:DBDep,
         room_data: RoomAddRequest = Body(...)):
     _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
     room = await db.rooms.add(_room_data)
-
-    rooms_facilities_data = [RoomFacilitiesAdd(room_id=room.id, facility_id=f_id) for f_id in room_data.facilities_ids]
-    await db.rooms_facilities.add_bulk(rooms_facilities_data)
+    if room_data.facilities_ids:
+        rooms_facilities_data = [RoomFacilitiesAdd(room_id=room.id, facility_id=f_id) for f_id in room_data.facilities_ids]
+        await db.rooms_facilities.add_bulk(rooms_facilities_data)
     await db.commit()
     return {'status': 'ok', 'data': room}
 
