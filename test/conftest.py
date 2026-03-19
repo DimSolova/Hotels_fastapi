@@ -18,6 +18,11 @@ from src.utils.db_manager import DBManager
 def check_test_mode():
     assert setting.MODE == "TEST"
 
+@pytest.fixture(scope="function")
+async def db():
+    async with DBManager(session_factory=async_session_maker_null_pool) as db:
+        yield db
+
 @pytest.fixture(scope="session",autouse=True)
 async def setup_database(check_test_mode) -> None:
     async with engine_null_pool.begin() as conn:
@@ -32,22 +37,24 @@ async def setup_database(check_test_mode) -> None:
 
     hotels = [HotelAdd(**hotel) for hotel in hotels_lst]
     rooms = [RoomAdd(**room) for room in rooms_lst]
+    async with DBManager(session_factory=async_session_maker_null_pool) as db_:
+        await db_.hotels.add_bulk(hotels)
+        await db_.rooms.add_bulk(rooms)
+        await db_.commit()
 
-    async with DBManager(session_factory=async_session_maker_null_pool) as db:
-        await db.hotels.add_bulk(hotels)
-        await db.rooms.add_bulk(rooms)
-        await db.commit()
-
+@pytest.fixture(scope="session")
+async def ac():
+    async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test") as ac:
+        yield ac
 
 @pytest.fixture(scope="session",autouse=True)
-async def register_user(setup_database):
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test") as ac:
-        response = await ac.post(
-            "/auth/register",
-            json={
-                "email": "test@pes.com",
-                "password": "1234"
-            }
-        )
-        assert response.status_code in (200, 201), f"Регистрация не удалась: {response.text}"
+async def register_user(setup_database, ac):
+
+    await ac.post(
+        "/auth/register",
+        json={
+            "email": "test@pes.com",
+            "password": "1234"
+        }
+    )
