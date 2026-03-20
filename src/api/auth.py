@@ -47,9 +47,8 @@ async def login_user(
                 'password': 'string'
             }}}),
 ):
-    user = await db.users.get_user_with_hashed_password(email=data.email)
-
     #проверка на существующий email
+    user = await db.users.get_user_with_hashed_password(email=data.email)
     if not user:
         raise HTTPException(status_code=401, detail='Пользователь с таким email не зарегистрирован')
 
@@ -58,8 +57,7 @@ async def login_user(
         raise HTTPException(status_code=401, detail='Пароль не верный')
 
     # Создаем токен
-    access_token = AuthService().create_access_token({'user_id': user.id,
-                                                      'age': user.age})
+    access_token = AuthService().create_access_token({'user_id': user.id})
     response.set_cookie('access_token', access_token)
     return {'access_token': access_token}
 

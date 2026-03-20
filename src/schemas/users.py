@@ -6,7 +6,7 @@ class UserRequestAdd(BaseModel):
 
 class UserLogin(BaseModel):
     email: EmailStr
-    hashed_password: str
+    password: str
 
 class UserAdd(BaseModel):
     email: EmailStr
