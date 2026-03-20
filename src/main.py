@@ -46,6 +46,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
+
 
 app.include_router(router_auth)
 app.include_router(router_hotels)
