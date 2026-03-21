@@ -32,4 +32,4 @@ class BookingsRepository(BaseRepository):
             res = await self.add(data)
             return res
         else:
-            raise Exception
+            raise HTTPException(500)
