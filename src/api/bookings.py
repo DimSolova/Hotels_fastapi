@@ -29,7 +29,7 @@ async def add_bookings(
     data = await db.bookings.add(_bookings_data)
 
     await db.commit()
-    return {'status': 'ok', 'data': data}
+    return {'status': 'OK', 'data': data}
 
 
 
