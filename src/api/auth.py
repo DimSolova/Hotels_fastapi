@@ -13,21 +13,13 @@ async def register_user(
         db:DBDep,
         data: UserRequestAdd
 ):
-    hashed_password = AuthService().hash_password(data.password)
-
-    #В переменной алембик схема
-    new_user_data = UserAdd(email=data.email,
-                            hashed_password=hashed_password,
-                            )
-    user = await db.users.get_user_with_hashed_password(email=data.email)
-
-        # проверка на существующий email
-    if user:
-        raise HTTPException(status_code=401, detail='Пользователь с таким email зарегистрирован')
-
-    await db.users.add(new_user_data)
-    await db.commit()
-    return {'status': 'OK'}
+    try:
+        hashed_password = AuthService().hash_password(data.password)
+        new_user_data = UserAdd(email=data.email, hashed_password=hashed_password)
+        await db.users.add(new_user_data)
+        await db.commit()
+    except:
+        raise HTTPException(status_code=400)
 
 @router.post('/login')
 async def login_user(
