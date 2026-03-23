@@ -1,6 +1,8 @@
-#test/conftest.py
+# test/conftest.py
+# ruff: noqa: E402
 import json
 from unittest import mock
+
 mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f).start()
 
 import pytest
@@ -9,7 +11,7 @@ from src.api.dependencies import get_db
 from src.config import setting
 from src.database import Base, engine_null_pool, async_session_maker_null_pool
 from src.main import app
-from src.models import *
+from src.models import *  # noqa
 
 from httpx import ASGITransport, AsyncClient
 
@@ -18,25 +20,28 @@ from src.schemas.rooms import RoomAdd
 from src.utils.db_manager import DBManager
 
 
-@pytest.fixture(scope="session",autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 def check_test_mode():
     assert setting.MODE == "TEST"
+
 
 async def get_db_null_pool():
     async with DBManager(session_factory=async_session_maker_null_pool) as db:
         yield db
+
 
 @pytest.fixture(scope="function")
 async def db():
     async for db in get_db_null_pool():
         yield db
 
-#«Когда в любом эндпоинте кто-то пишет Depends(get_db),
+
+# «Когда в любом эндпоинте кто-то пишет Depends(get_db),
 # вместо настоящей функции get_db вызывай вот эту — get_db_null_pool»
 app.dependency_overrides[get_db] = get_db_null_pool
 
 
-@pytest.fixture(scope="session",autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 async def setup_database(check_test_mode) -> None:
     async with engine_null_pool.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
@@ -55,31 +60,22 @@ async def setup_database(check_test_mode) -> None:
         await db_.rooms.add_bulk(rooms)
         await db_.commit()
 
+
 @pytest.fixture(scope="session")
 async def ac():
-    async with AsyncClient(
-            transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
 
-@pytest.fixture(scope="session",autouse=True)
+
+@pytest.fixture(scope="session", autouse=True)
 async def register_user(setup_database, ac):
 
-    await ac.post(
-        "/auth/register",
-        json={
-            "email": "test@pes.com",
-            "password": "1234"
-        }
-    )
+    await ac.post("/auth/register", json={"email": "test@pes.com", "password": "1234"})
+
+
 @pytest.fixture(scope="session")
 async def authenticated_ac(register_user, ac):
-    response = await ac.post(
-        "/auth/login",
-        json={
-            "email": "test@pes.com",
-            "password": "1234"
-        }
-    )
+    response = await ac.post("/auth/login", json={"email": "test@pes.com", "password": "1234"})
     assert response.status_code == 200
     assert ac.cookies["access_token"]
 

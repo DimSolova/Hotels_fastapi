@@ -12,7 +12,7 @@ async def test_booking_crud(db):
         date_to=date(year=2024, month=8, day=20),
         price=100,
     )
-    #TO CRUD
+    # TO CRUD
 
     create_booking = await db.bookings.add(booking_data)
     assert create_booking is not None
@@ -20,24 +20,24 @@ async def test_booking_crud(db):
 
     booking_id = create_booking.id
 
-    #Read
+    # Read
     found = await db.bookings.get_one_or_none(id=booking_id)
     assert found is not None
     assert found.user_id == user_id
 
-    #Update
+    # Update
     update_data = BookingsPATCH(
         date_to=date(year=2024, month=8, day=25),
         price=200,
     )
-    await db.bookings.edit(update_data,id=booking_id,exclude_unset=True)
+    await db.bookings.edit(update_data, id=booking_id, exclude_unset=True)
     update_booking_data = await db.bookings.get_one_or_none(id=booking_id)
 
     assert update_booking_data.price == 200
     assert update_booking_data.user_id == user_id
     assert update_booking_data.date_to == date(year=2024, month=8, day=25)
 
-    #delete
+    # delete
     delete_bookings = await db.bookings.delete(id=booking_id)
     assert delete_bookings is None
 

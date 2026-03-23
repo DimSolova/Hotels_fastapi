@@ -16,7 +16,7 @@ async def register_user(db: DBDep, data: UserRequestAdd):
         new_user_data = UserAdd(email=data.email, hashed_password=hashed_password)
         await db.users.add(new_user_data)
         await db.commit()
-    except:
+    except:  # noqa:E722
         raise HTTPException(status_code=400)
 
 

@@ -7,7 +7,7 @@ from alembic import context
 
 from src.config import setting
 from src.database import Base
-from src.models import *
+from src.models import *  # noqa
 
 
 # this is the Alembic Config object, which provides
