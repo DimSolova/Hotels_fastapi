@@ -16,12 +16,8 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.add_column(
-        "users", sa.Column("age", sa.INTEGER(), autoincrement=False, nullable=False)
-    )
+    op.add_column("users", sa.Column("age", sa.INTEGER(), autoincrement=False, nullable=False))
     op.add_column(
         "users",
-        sa.Column(
-            "nickname", sa.VARCHAR(length=25), autoincrement=False, nullable=False
-        ),
+        sa.Column("nickname", sa.VARCHAR(length=25), autoincrement=False, nullable=False),
     )

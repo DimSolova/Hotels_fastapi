@@ -2,7 +2,6 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
 
 revision: str = "747662f8a409"
 down_revision: Union[str, Sequence[str], None] = "d036fbb08aac"
@@ -17,9 +16,10 @@ def upgrade() -> None:
         sa.Column(
             "total_price",
             sa.Integer(),
-            sa.Computed("price * EXTRACT(DAY FROM (date_to - date_from))")
-        )
+            sa.Computed("price * EXTRACT(DAY FROM (date_to - date_from))"),
+        ),
     )
+
 
 def downgrade() -> None:
     # Удаляем computed колонку

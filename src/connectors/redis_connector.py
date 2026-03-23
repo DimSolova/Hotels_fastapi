@@ -14,7 +14,7 @@ class RedisManager:
             port=self.port,
         )
 
-    async def set(self, key: str, value: str, expire = None) -> None:
+    async def set(self, key: str, value: str, expire=None) -> None:
         """
         Установить значение в Redis
         :param key: ключ

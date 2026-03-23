@@ -7,12 +7,9 @@ celery_instance = Celery(
     broker=setting.REDIS_URL,
     include=[
         "src.tasks.tasks",
-    ]
+    ],
 )
 
 celery_instance.conf.beat_schedule = {
-    "luboe nazvanie": {
-        "task": "booking_today_checkin",
-        "schedule": 5
-    }
+    "luboe nazvanie": {"task": "booking_today_checkin", "schedule": 5}
 }

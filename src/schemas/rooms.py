@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field
 
 from src.schemas.facilities import Facilities
 
@@ -10,6 +10,7 @@ class RoomAddRequest(BaseModel):
     quantity: int
     facilities_ids: list[int] = []
 
+
 class RoomAdd(BaseModel):
     title: str
     hotel_id: int
@@ -17,14 +18,16 @@ class RoomAdd(BaseModel):
     price: int
     quantity: int
 
+
 class Room(RoomAdd):
     id: int
 
-
     # model_config = ConfigDict(from_attributes=True)
+
 
 class RoomWithRels(Room):
     facilities: list[Facilities]
+
 
 class RoomPatchRequest(BaseModel):
     title: str | None = Field(None)
@@ -32,6 +35,7 @@ class RoomPatchRequest(BaseModel):
     price: int | None = Field(None)
     quantity: int | None = Field(None)
     facilities_ids: list[int] = []
+
 
 class RoomPatch(BaseModel):
     title: str | None = Field(None)
