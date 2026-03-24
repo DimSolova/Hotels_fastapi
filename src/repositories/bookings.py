@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Sequence
 
 from fastapi import HTTPException
 from pydantic import BaseModel
@@ -27,7 +28,7 @@ class BookingsRepository(BaseRepository):
         room_id = data.room_id
         rooms_ids_to_get = rooms_ids_for_booking(data.date_from, data.date_to, hotel_id)
         res = await self.session.execute(rooms_ids_to_get)
-        rooms_ids = res.scalars().all()
+        rooms_ids: Sequence[int] = res.scalars().all()
         if room_id in rooms_ids:
             res = await self.add(data)
             return res

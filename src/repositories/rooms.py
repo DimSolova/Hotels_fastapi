@@ -11,10 +11,10 @@ from src.schemas.rooms import RoomWithRels
 
 
 class RoomsRepository(BaseRepository):
-    model = RoomsOrm
+    model: RoomsOrm = RoomsOrm
     mapper = RoomDataMapper
 
-    async def get_one_or_none_with_rels(self, **filter_by):
+    async def get_one_or_none_with_rels(self, **filter_by): #type: ignore
         query = select(self.model).options(joinedload(self.model.facilities)).filter_by(**filter_by)
         result = await self.session.execute(query)
 
@@ -35,9 +35,9 @@ class RoomsRepository(BaseRepository):
         # print(query.compile(bind=engine, compile_kwargs={'literal_binds': True}))
 
         query = (
-            select(self.model)
+            select(self.model) #type: ignore
             .options(joinedload(self.model.facilities))
-            .filter(RoomsOrm.id.in_(rooms_ids_to_get))
+            .filter(RoomsOrm.id.in_(rooms_ids_to_get)) #type: ignore
         )
         result = await self.session.execute(query)
         return [

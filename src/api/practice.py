@@ -9,7 +9,7 @@ router = APIRouter(prefix="/practice", tags=["Практика"])
 async def get(number: PracticeDep):
     """Возвращает квадрат числа"""
     print(number.model_dump()["number"], type(number.model_dump()))
-    return {"number": number, "square": number**2}
+    return {"number": number, "square": number**2} #type: ignore
 
 
 @router.get("/users/{user_id}")

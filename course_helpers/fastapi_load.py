@@ -24,17 +24,17 @@ if __name__ == "__main__":
 # ручки сбросить в нужный файл
 
 
-@app.get("/sync/{id}")  # noqa F821
+@app.get("/sync/{id}")  # noqa F821 #type: ignore
 def sync_func(id: int):
     print("потоков: ", threading.active_count())
-    print(f"sync. Start {id}: {time.time():.2f}")  # noqa F821
-    time.sleep(3)  # noqa F821
-    print(f"sync. Finish {id}: {time.time():.2f}")  # noqa F821
+    print(f"sync. Start {id}: {time.time():.2f}")  # noqa F821 #type: ignore
+    time.sleep(3)  # noqa F821 #type: ignore
+    print(f"sync. Finish {id}: {time.time():.2f}")  # noqa F821 #type: ignore
 
 
-@app.get("/async/{id}")  # noqa F821
+@app.get("/async/{id}")  # noqa F821 #type: ignore
 async def async_func(id: int):
-    print(f"async. Start {id}: {time.time():.2f}")  # noqa F821
+    print(f"async. Start {id}: {time.time():.2f}")  # noqa F821 #type: ignore
     await asyncio.sleep(3)
     print("потоков: ", threading.active_count())
-    print(f"async. Finish {id}: {time.time():.2f}")  # noqa F821
+    print(f"async. Finish {id}: {time.time():.2f}")  # noqa F821 #type: ignore
