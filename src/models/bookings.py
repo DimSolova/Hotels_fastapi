@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import BigInteger, ForeignKey, Date
+from sqlalchemy import BigInteger, ForeignKey, Date, Integer
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -10,9 +10,9 @@ from src.database import Base
 class BookingsOrm(Base):
     __tablename__ = "bookings"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id"))
-    room_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("rooms.id"))
+    room_id: Mapped[int] = mapped_column(Integer, ForeignKey("rooms.id"))
     date_from: Mapped[date] = mapped_column(Date)
     date_to: Mapped[date] = mapped_column(Date)
     price: Mapped[int]

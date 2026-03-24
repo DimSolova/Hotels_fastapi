@@ -10,7 +10,10 @@ router = APIRouter(prefix="/auth", tags=["Авторизация и аутент
 
 
 @router.post("/register")
-async def register_user(db: DBDep, data: UserRequestAdd):
+async def register_user(
+        data: UserRequestAdd,
+        db: DBDep,
+):
     try:
         hashed_password = AuthService().hash_password(data.password)
         new_user_data = UserAdd(email=data.email, hashed_password=hashed_password)
