@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 
+from src.exceptions import AllRoomsAreBookedException
 from src.models.bookings import BookingsOrm
 from src.repositories.base import BaseRepository
 from src.repositories.mappers.mappers import BookingDataMapper
@@ -32,5 +33,4 @@ class BookingsRepository(BaseRepository):
         if room_id in rooms_ids:
             res = await self.add(data)
             return res
-        else:
-            raise HTTPException(500)
+        raise AllRoomsAreBookedException

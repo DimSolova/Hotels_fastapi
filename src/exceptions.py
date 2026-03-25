@@ -8,3 +8,6 @@ class Nabroniroval(Exception):
 
 class ObjectNotFoundException(Nabroniroval):
     detail = "Object not found"
+
+class AllRoomsAreBookedException(Nabroniroval):
+    detail = "Не осталось свободных номеров"
