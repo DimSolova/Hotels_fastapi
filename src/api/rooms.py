@@ -3,6 +3,7 @@ from datetime import date
 from fastapi import APIRouter, Body, Query
 
 from src.api.dependencies import DBDep
+from src.exceptions import check_date_from_to
 from src.schemas.facilities import RoomFacilitiesAdd
 from src.schemas.rooms import RoomAdd, RoomPatch, RoomAddRequest, RoomPatchRequest
 
@@ -16,6 +17,7 @@ async def get_rooms(
     date_from: date = Query(examples=["2024-08-01"]),
     date_to: date = Query(examples=["2024-08-10"]),
 ):
+    check_date_from_to(date_from, date_to)
     return await db.rooms.get_filtered_by_time(
         hotel_id=hotel_id, date_from=date_from, date_to=date_to
     )
