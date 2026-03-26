@@ -5,9 +5,10 @@ import bcrypt
 import jwt
 
 from src.config import setting
+from src.services.base import BaseService
 
 
-class AuthService:
+class AuthService(BaseService):
     def create_access_token(self, data: dict) -> str:
         to_encode = data.copy()
         expire = datetime.now(timezone.utc) + timedelta(minutes=setting.ACCESS_TOKEN_EXPIRE_MINUTES)
