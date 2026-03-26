@@ -14,6 +14,12 @@ class Nabroniroval(Exception):
 class ObjectNotFoundException(Nabroniroval):
     detail = "Object not found"
 
+class HotelNotFoundException(Nabroniroval):
+    detail = "Отель не найден"
+
+class RoomNotFoundException(Nabroniroval):
+    detail = "Номер не найден"
+
 class AllRoomsAreBookedException(Nabroniroval):
     detail = "Не осталось свободных номеров"
 

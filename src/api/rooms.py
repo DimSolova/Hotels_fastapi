@@ -4,9 +4,10 @@ from fastapi import APIRouter, Body, Query
 
 from src.api.dependencies import DBDep
 from src.exceptions import check_date_from_to, ObjectNotFoundException, HotelNotFoundHTTPException, \
-    RoomNotFoundHTTPException
+    RoomNotFoundHTTPException, RoomNotFoundException, HotelNotFoundException
 from src.schemas.facilities import RoomFacilitiesAdd
 from src.schemas.rooms import RoomAdd, RoomPatch, RoomAddRequest, RoomPatchRequest
+from src.services.rooms import RoomService
 
 router = APIRouter(prefix="/hotels", tags=["Номера"])
 
@@ -19,23 +20,14 @@ async def get_rooms(
     date_from: date = Query(examples=["2024-08-01"]),
     date_to: date = Query(examples=["2024-08-10"]),
 ):
-    check_date_from_to(date_from, date_to)
-    return await db.rooms.get_filtered_by_time(
-        hotel_id=hotel_id, date_from=date_from, date_to=date_to
-    )
-
+    return await RoomService(db).get_filtered_by_time(hotel_id, date_from, date_to)
 
 @router.get("/{hotels_id}/rooms/{room_id}")
 async def get_room(db: DBDep, hotel_id: int, room_id: int):
     try:
-        await db.hotels.get_one(id=hotel_id)
-    except ObjectNotFoundException:
-        raise HotelNotFoundHTTPException
-    try:
-        await db.rooms.get_one(id=room_id)
-    except ObjectNotFoundException:
+        return await RoomService(db).get_room(hotel_id, room_id)
+    except RoomNotFoundException:
         raise RoomNotFoundHTTPException
-    return await db.rooms.get_one_or_none_with_rels(id=room_id, hotel_id=hotel_id)
 
 
 @router.post(
@@ -48,18 +40,9 @@ async def get_room(db: DBDep, hotel_id: int, room_id: int):
 # это экономит время , так же удобно фронтэндеру
 async def create_room(hotel_id: int, db: DBDep, room_data: RoomAddRequest = Body(...)):
     try:
-        await db.hotels.get_one(id=hotel_id)
-    except ObjectNotFoundException:
+        room = await RoomService(db).create_room(hotel_id, room_data)
+    except HotelNotFoundException:
         raise HotelNotFoundHTTPException
-    _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
-    room = await db.rooms.add(_room_data)
-    if room_data.facilities_ids:
-        rooms_facilities_data = [
-            RoomFacilitiesAdd(room_id=room.id, facility_id=f_id)
-            for f_id in room_data.facilities_ids
-        ]
-        await db.rooms_facilities.add_bulk(rooms_facilities_data)
-    await db.commit()
     return {"status": "ok", "data": room}
 
 
@@ -68,21 +51,12 @@ async def create_room(hotel_id: int, db: DBDep, room_data: RoomAddRequest = Body
     summary="Полное изменение отеля",
     description="передаем id отеля и json новых данных",
 )
-async def edit_room(db: DBDep, hotel_id: int, room_id: int, room_data: RoomAddRequest):
-    try:
-        await db.hotels.get_one(id=hotel_id)
-    except ObjectNotFoundException:
-        raise HotelNotFoundHTTPException
-    try:
-        await db.rooms.get_one(id=room_id)
-    except ObjectNotFoundException:
-        raise RoomNotFoundHTTPException
-    _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
-    await db.rooms.edit(_room_data, id=room_id)
-    await db.rooms_facilities.set_room_facilities(
-        room_id=room_id, facilities_ids=room_data.facilities_ids
-    )
-    await db.commit()
+async def edit_room(
+        db: DBDep,
+        hotel_id: int,
+        room_id: int,
+        room_data: RoomAddRequest):
+    await RoomService(db).edit_room(hotel_id,room_id, room_data)
     return {"status": "OK"}
 
 
@@ -94,24 +68,7 @@ async def edit_room(db: DBDep, hotel_id: int, room_id: int, room_data: RoomAddRe
 async def partially_edit_room(
     db: DBDep, hotel_id: int, room_id: int, room_data: RoomPatchRequest = Body(...)
 ):
-    try:
-        await db.hotels.get_one(id=hotel_id)
-    except ObjectNotFoundException:
-        raise HotelNotFoundHTTPException
-    try:
-        await db.rooms.get_one(id=room_id)
-    except ObjectNotFoundException:
-        raise RoomNotFoundHTTPException
-    _room_data_dict = room_data.model_dump(exclude_unset=True)
-    _room_data = RoomPatch(hotel_id=hotel_id, **_room_data_dict)
-    # exclude_unset=True, метод в pydantic позволяет убрать
-    # из словаря все значения в которых None
-    await db.rooms.edit(_room_data, exclude_unset=True, id=room_id, hotel_id=hotel_id)
-    if "facilities_ids" in _room_data_dict:
-        await db.rooms_facilities.set_room_facilities(
-            room_id=room_id, facilities_ids=_room_data_dict["facilities_ids"]
-        )
-    await db.commit()
+    await RoomService(db).partially_edit_room(hotel_id,room_id,room_data)
     return {"status": "ok"}
 
 
@@ -121,14 +78,8 @@ async def partially_edit_room(
     description="Нужно указать id комнаты которую хотим удалить",
 )
 async def delete(db: DBDep, hotel_id: int, room_id: int):
-    try:
-        await db.hotels.get_one(id=hotel_id)
-    except ObjectNotFoundException:
-        raise HotelNotFoundHTTPException
-    try:
-        await db.rooms.get_one(id=room_id)
-    except ObjectNotFoundException:
-        raise RoomNotFoundHTTPException
-    await db.rooms.delete(id=room_id, hotel_id=hotel_id)
-    await db.commit()
+    await RoomService(db).delete(
+        hotel_id,
+        room_id
+    )
     return {"status": "OK"}
