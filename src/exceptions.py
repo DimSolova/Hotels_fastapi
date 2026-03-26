@@ -11,3 +11,6 @@ class ObjectNotFoundException(Nabroniroval):
 
 class AllRoomsAreBookedException(Nabroniroval):
     detail = "Не осталось свободных номеров"
+
+class ObjectAlreadyExistsException(Nabroniroval):
+    detail = "Object уже существует"
