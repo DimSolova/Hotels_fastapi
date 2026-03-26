@@ -28,7 +28,7 @@ class NabronirovalHTTPException(HTTPException):
 
 class HotelNotFoundHTTPException(NabronirovalHTTPException):
     status_code = 409
-    detail = "Номер не существует"
+    detail = "Отеля не существует"
 
 class RoomNotFoundHTTPException(NabronirovalHTTPException):
     status_code = 409
