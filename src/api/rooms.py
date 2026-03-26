@@ -11,6 +11,7 @@ from src.schemas.rooms import RoomAdd, RoomPatch, RoomAddRequest, RoomPatchReque
 router = APIRouter(prefix="/hotels", tags=["Номера"])
 
 
+
 @router.get("/{hotels_id}/rooms")
 async def get_rooms(
     hotel_id: int,
