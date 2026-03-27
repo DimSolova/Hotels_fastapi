@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from src.exceptions import AllRoomsAreBookedException, RoomNotFoundException, \
     RoomNotFoundHTTPException, AllRoomsAreBookedHTTPException

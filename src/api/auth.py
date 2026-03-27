@@ -1,11 +1,11 @@
 # src/api/auth.py
-from fastapi import APIRouter, HTTPException, Response, Body
+from fastapi import APIRouter, Response, Body
 
 from src.api.dependencies import DBDep, UserIdDep
-from src.exceptions import ObjectAlreadyExistsException, UserAlreadyExistsException, UserEmailAlreadyExistsException, \
+from src.exceptions import UserAlreadyExistsException, UserEmailAlreadyExistsException, \
     EmailNotRegisteredException, IncorrectPasswordException, EmailNotRegisteredHTTPException, \
     IncorrectPasswordHTTPException
-from src.schemas.users import UserRequestAdd, UserAdd, UserLogin
+from src.schemas.users import UserRequestAdd, UserLogin
 from src.services.auth import AuthService
 
 

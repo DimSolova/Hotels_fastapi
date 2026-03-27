@@ -1,7 +1,6 @@
 from datetime import date
 from typing import Sequence
 
-from fastapi import HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 

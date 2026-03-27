@@ -1,6 +1,6 @@
 import typing
 
-from sqlalchemy import BigInteger, ForeignKey, Integer
+from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
