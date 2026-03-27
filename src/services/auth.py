@@ -1,10 +1,12 @@
 from datetime import datetime, timezone, timedelta
-from fastapi import HTTPException
 
 import bcrypt
 import jwt
 
 from src.config import setting
+from src.exceptions import ObjectAlreadyExistsException, UserAlreadyExistsException, IncorrectTokenException, \
+    EmailNotRegisteredException, IncorrectPasswordException
+from src.schemas.users import UserRequestAdd, UserAdd
 from src.services.base import BaseService
 
 
@@ -28,4 +30,31 @@ class AuthService(BaseService):
         try:
             return jwt.decode(token, setting.JWT_SECRET_KEY, algorithms=[setting.JWT_ALGORITHM])
         except jwt.PyJWTError:
-            raise HTTPException(status_code=401, detail="Неверный токен")
+            raise IncorrectTokenException
+
+    async def register_user(self, data: UserRequestAdd):
+        hashed_password = self.hash_password(data.password)
+        new_user_data = UserAdd(email=data.email, hashed_password=hashed_password)
+        try:
+            await self.db.users.add(new_user_data)
+            await self.db.commit()
+        except ObjectAlreadyExistsException as ex:
+            raise UserAlreadyExistsException from ex
+
+    async def login_user(self, data):
+        # проверка на существующий email
+        user = await self.db.users.get_user_with_hashed_password(email=data.email)
+        if not user:
+            raise EmailNotRegisteredException
+
+        # проверка на верный пароль
+        if not self.verify_password(data.password, user.hashed_password):
+            raise IncorrectPasswordException
+
+        # Создаем токен
+        return self.create_access_token({"user_id": user.id})
+
+    async def get_one_or_none(self, user_id: int):
+        user = await self.db.users.get_one_or_none(id=user_id)
+        return user
+
