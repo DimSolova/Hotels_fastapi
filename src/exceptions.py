@@ -53,6 +53,10 @@ class RoomNotFoundHTTPException(NabronirovalHTTPException):
     status_code = 409
     detail = "Номер не существует"
 
+class AllRoomsAreBookedHTTPException(NabronirovalHTTPException):
+    status_code = 409
+    detail = "Не осталось свободных номеров"
+
 class UserEmailAlreadyExistsException(NabronirovalHTTPException):
     status_code = 409
     detail = "Пользователь с такой почтой уже существует"
