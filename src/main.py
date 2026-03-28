@@ -10,6 +10,7 @@ from fastapi_cache.backends.redis import RedisBackend
 import uvicorn
 import sys
 
+sys.path.append(str(Path(__file__).parent.parent))
 from src.init import redis_manager
 
 from src.api.dependencies import get_db
@@ -20,7 +21,6 @@ from src.api.bookings import router as router_bookings
 from src.api.facilities import router as router_facilities
 from src.api.images import router as router_images
 
-sys.path.append(str(Path(__file__).parent.parent))
 
 logging.basicConfig(level=logging.INFO)
 
@@ -62,4 +62,4 @@ app.include_router(router_images)
 # app.include_router(practice_router)
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True)
+    uvicorn.run("main:app",host="0.0.0.0", reload=True)
